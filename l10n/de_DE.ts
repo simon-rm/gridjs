@@ -1,6 +1,7 @@
 export default {
   search: {
     placeholder: 'Suchbegriff eingeben...',
+    button: 'Suchen',
   },
   sort: {
     sortAsc: 'Spalte aufsteigend sortieren',
@@ -15,6 +16,7 @@ export default {
     of: 'von',
     to: 'bis',
     results: 'Ergebnissen',
+    limit: 'Limit',
   },
   loading: 'Wird geladen...',
   noRecordsFound: 'Keine passenden Daten gefunden',

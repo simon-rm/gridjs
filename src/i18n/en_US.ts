@@ -16,6 +16,7 @@ export default {
     of: 'of',
     to: 'to',
     results: 'results',
+    limit: 'Limit',
   },
   loading: 'Loading...',
   noRecordsFound: 'No matching records found',

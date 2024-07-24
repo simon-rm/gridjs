@@ -14,6 +14,40 @@
     margin-top: 5px;
   }
 
+  div.gridjs-limit-selector {
+      float: left;
+      margin-left: 2em;
+  }
+
+  .gridjs-limit-selector {
+    select {
+      padding: 6px 14px;
+      border: 1px solid $gray4;
+      background-color: $white;
+      outline: none;
+      user-select: none;
+    }
+
+    select:focus {
+      box-shadow: 0 0 0 2px rgba(149, 189, 243, 0.5);
+      position: relative;
+      margin-right: -1px;
+      border-right: 1px solid $gray4;
+    }
+
+    select:hover {
+      background-color: $gray2;
+      color: $darkBlue1;
+      outline: none;
+    }
+
+    select:disabled {
+      cursor: default;
+      background-color: $white;
+      color: $gray5;
+    }
+  }
+
   .gridjs-pages {
     float: right;
 

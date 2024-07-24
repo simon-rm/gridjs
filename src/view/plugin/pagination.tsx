@@ -15,6 +15,7 @@ export interface PaginationConfig {
   buttonsCount?: number;
   resetPageOnUpdate?: boolean;
   showDropdown?: boolean;
+  limitSelector?: number[];
   server?: {
     url?: (prevUrl: string, page: number, limit: number) => string;
     body?: (prevBody: BodyInit, page: number, limit: number) => BodyInit;
@@ -33,17 +34,19 @@ export function Pagination() {
     limit = 10,
     page = 0,
     resetPageOnUpdate = true,
+    limitSelector = [],
   } = config.pagination as PaginationConfig;
 
   const processor = useRef<PaginationLimit | ServerPaginationLimit>(null);
   const [currentPage, setCurrentPage] = useState(page);
+  const [currentLimit, setCurrentLimit] = useState(limit);
   const [total, setTotal] = useState(0);
   const _ = useTranslator();
 
   useEffect(() => {
     if (server) {
       processor.current = new ServerPaginationLimit({
-        limit: limit,
+        limit: currentLimit,
         page: currentPage,
         url: server.url,
         body: server.body,
@@ -52,7 +55,7 @@ export function Pagination() {
       config.pipeline.register(processor.current);
     } else {
       processor.current = new PaginationLimit({
-        limit: limit,
+        limit: currentLimit,
         page: currentPage,
       });
 
@@ -99,7 +102,7 @@ export function Pagination() {
     }
   };
 
-  const pages = () => Math.ceil(total / limit);
+  const pages = () => Math.ceil(total / currentLimit);
 
   const setPage = (page: number) => {
     if (page >= pages() || page < 0 || page === currentPage) {
@@ -110,6 +113,21 @@ export function Pagination() {
 
     processor.current.setProps({
       page: page,
+    });
+  };
+
+  const onSetLimit = (event: JSX.TargetedMouseEvent<HTMLSelectElement>) => {
+    if (event.target instanceof HTMLSelectElement) {
+      setLimit(parseInt(event.target.value, 10));
+    }
+  };
+
+  const setLimit = (limit: number) => {
+    setCurrentLimit(limit);
+    setCurrentPage(0);
+    processor.current.setProps({
+      limit: limit,
+      page: 0,
     });
   };
 
@@ -162,9 +180,9 @@ export function Pagination() {
               className={classJoin(
                 currentPage === i
                   ? classJoin(
-                      className('currentPage'),
-                      config.className.paginationButtonCurrent,
-                    )
+                    className('currentPage'),
+                    config.className.paginationButtonCurrent,
+                  )
                   : null,
                 config.className.paginationButton,
               )}
@@ -215,14 +233,40 @@ export function Pagination() {
             )}
             title={_('pagination.navigate', currentPage + 1, pages())}
           >
-            {_('pagination.showing')} <b>{_(`${currentPage * limit + 1}`)}</b>{' '}
+            {_('pagination.showing')} <b>{_(`${currentPage * currentLimit + 1}`)}</b>{' '}
             {_('pagination.to')}{' '}
-            <b>{_(`${Math.min((currentPage + 1) * limit, total)}`)}</b>{' '}
+            <b>{_(`${Math.min((currentPage + 1) * currentLimit, total)}`)}</b>{' '}
             {_('pagination.of')} <b>{_(`${total}`)}</b>{' '}
             {_('pagination.results')}
           </div>
         )}
       </Fragment>
+    );
+  };
+
+  const renderLimitSelector = () => {
+    if (!limitSelector || limitSelector.length === 0) {
+      return null;
+    }
+
+    return (
+      <div
+        className={classJoin(
+          className('limit-selector'),
+          config.className.paginationSummary,
+        )}
+      >
+        {_('pagination.limit')}{' '}
+        <select
+          onChange={onSetLimit}
+          value={currentLimit}
+          className={className('limit-selector')}
+        >
+          {limitSelector.map((limit) => (
+            <option value={limit}>{limit}</option>
+          ))}
+        </select>
+      </div>
     );
   };
 
@@ -240,6 +284,8 @@ export function Pagination() {
       )}
     >
       {renderSummary()}
+      {limitSelector && (renderLimitSelector())}
+
 
       <div className={className('pages')}>
         {prevButton && (
@@ -289,6 +335,7 @@ export function Pagination() {
             {_('pagination.next')}
           </button>
         )}
+
       </div>
     </div>
   );
